@@ -11,6 +11,7 @@ class FechaAlquiler_Inline (admin.TabularInline):
     model = FechaAlq
     fk_name = "propiedad"
     max_num = 7
+    exclude = ["reserva",]
 
 
 class PropiedadAdmin (admin.ModelAdmin):

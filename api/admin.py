@@ -10,7 +10,8 @@ from .models import (FechaAlq, Propiedad, Anfitrion, Ciudad,
 class FechaAlquiler_Inline (admin.TabularInline):
     model = FechaAlq
     fk_name = "propiedad"
-    max_num = 7
+    extra = 0
+    #exclude = ['reserva',]
 
 
 class PropiedadAdmin (admin.ModelAdmin):

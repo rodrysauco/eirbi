@@ -1,4 +1,4 @@
-.logoTitle{
+.logoTitle {
     font-style: italic;
     color: #263238 !important;
     left: 50px;
@@ -6,15 +6,35 @@
     padding: 0 0 0 30px;
     display: inline
 }
-.inlineSearch{
+
+.inlineSearch {
     display: inline-block;
 }
-.searchBtn{
+
+.searchBtn {
     padding: 0;
 }
-.searchLogo{
+
+.searchLogo {
     padding: 5px;
 }
-.container{
+
+.container {
     margin-top: 20px;
+}
+
+.card-body {
+    height: 370px;
+}
+
+.img{
+    height: 500px;
+    width: 500px;
+    position: absolute;
+}
+
+a:hover, a:visited, a:link, a:active
+{
+    text-decoration: none;
+    color: black
 }

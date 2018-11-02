@@ -9,7 +9,7 @@ from datetime import datetime
 
 # Create your views here.
 def index(request):
-    filtro = request.GET['filter']
+    filtro = request.GET.get('filter')
     ciudades = Ciudad.objects.all()
     if filtro == 'true':
         filtrados = Propiedad.objects.all().filter(ciudad=request.GET['cities'])
@@ -32,7 +32,7 @@ def propiedad(request, propiedadid):
         prop = Propiedad.objects.get(id=propiedadid)
     except Propiedad.DoesNotExist:
         raise Http404("La propiedad ingresada no existe")
-    return render(request, 'propiedad.html', {'propiedad': propiedad})
+    return render(request, 'propiedad.html', {'property': prop})
 
 
 def reservaPropiedad(request):

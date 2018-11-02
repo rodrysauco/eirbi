@@ -16,7 +16,7 @@
 <body>
     <!-- Header -->
     <nav class="navbar navbar-light bg-light">
-        <span class="logoTitle">EirBi&Bi</span>
+        <span class="logoTitle"> <a href="{% url 'apiAlq:api' %}"> EirBi&Bi</span></a>
         <form method="GET" class="form-inline">
             <input type="hidden" name="filter" id="filter" value='false'>
             <select name="cities" id="cities" class="form-control mr-sm-2" onclick="setFilter()">

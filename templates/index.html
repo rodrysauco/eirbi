@@ -1,47 +1,69 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <link rel="stylesheet" href="{% static "css/styyle.css" %}">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
-      rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/styyle.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>EirBi&Bi | UTN</title>
 </head>
-<nav>
-    <div class="nav-wrapper">
-        <a href="#" class="brand-logo">Logo</a>
-        <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="sass.html">Sass</a></li>
-            <li><a href="badges.html">Components</a></li>
-            <li><a href="collapsible.html">JavaScript</a></li>
-        </ul>
-    </div>
-</nav>
 
 <body>
-    <div>
-        <strong value="{{ c.id }}">{{ prop.title }}</strong>
-    </div>
-    <nav>
-        <div class="nav-wrapper blue-grey lighten-5">
-            <span class="brand-logo logoTitle">EirBi&Bi</span>
-            <form class="right">
-                <select id="cities">
-                    <option value="">Asdasd</option>
-                </select>
-                <button class="btn waves-effect waves-light"><i class="material-icons">search</i></button>
-            </form>
-            <!-- <ul id="nav-mobile" class="right hide-on-med-and-down">
-                <li><a href="sass.html">Sass</a></li>
-                <li><a href="badges.html">Components</a></li>
-                <li><a href="collapsible.html">JavaScript</a></li>
-            </ul> -->
+    <!-- Header -->
+    <nav class="navbar navbar-light bg-light">
+        <span class="logoTitle">EirBi&Bi</span>
+        <form method="GET" class="form-inline">
+            <input type="hidden" name="filter" id="filter" value='false'>
+            <select name="cities" id="cities" class="form-control mr-sm-2" onclick="setFilter()">
+                <option value="" selected disabled>Seleccione</option>
+                {% for city in ciudades %}
+                <option value="{{city.id}}">{{city.nombre}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-outline-info searchBtn"><i class="material-icons searchLogo">search</i></button>
+        </form>
+    </nav>
+    <!-- Body -->
+    <div class="container">
+        <div class="row">
+            {% if propiedades %}
+            {% for property in propiedades %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <img src="{{property.imagen.url}}" alt="Imagen propiedad" class="card-img top">
+                        <h5 class="card-title">{{property.title}}</h5>
+                        <p class="card-text">{{property.descripcion}}</p>
+                        <p class="card-text">
+                            <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
+                        </p>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{% url 'apiAlq:propiedad' property.id %}" class="btn btn-outline-info btn-sm float-right">Ver
+                            mas</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
         </div>
-    </nav>    
+    </div>
+    <script>
+        function setFilter() {
+            let cities = document.getElementById("cities");
+            if (cities.value > 0) {
+                let filter = document.getElementById("filter");
+                filter.value = true;
+                document.getElementById("filter") = filter;
+            }
+
+        }
+    </script>
 </body>
+
 </html>

@@ -9,10 +9,10 @@ from datetime import datetime
 
 # Create your views here.
 def index(request):
+    filtro = request.GET['filter']
     ciudades = Ciudad.objects.all()
-    if 'filter' in request.GET:
-        filtrados = Propiedad.objects.all().filter(
-            ciudad=request.GET['idCiudad'])
+    if filtro == 'true':
+        filtrados = Propiedad.objects.all().filter(ciudad=request.GET['cities'])
         contexto = {
             'propiedades': filtrados,
             'ciudades': ciudades

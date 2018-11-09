@@ -5,7 +5,11 @@ from django.http import HttpResponse
 from django.http import Http404
 from api.models import *
 from datetime import datetime
+from collections import namedtuple
+from api.forms import ReservaForm
 
+def render404(request):
+    return render(request, '404.html', status=404)
 
 # Create your views here.
 def index(request):
@@ -32,35 +36,42 @@ def propiedad(request, propiedadid):
         prop = Propiedad.objects.get(id=propiedadid)
     except Propiedad.DoesNotExist:
         raise Http404("La propiedad ingresada no existe")
-    return render(request, 'propiedad.html', {'property': prop})
+    return render(request, 'propiedad.html', {'property': prop, 'form': ReservaForm()})
 
 
 def reservaPropiedad(request):
     if request.method == 'POST':
-        DiaInicio = datetime.strptime(
+        diaInicio = datetime.strptime(
             request.POST['dateFrom'], '%Y-%m-%d').date()
-        DiaFin = datetime.strptime(request.POST['dateTo'], '%Y-%m-%d').date()
+        diaFin = datetime.strptime(request.POST['dateTo'], '%Y-%m-%d').date()
         propiedadAlquilar = Propiedad.objects.get(
             id=request.POST['propertyId'])
         fechasDeReserva = Reserva.objects.filter(
             propiedad=propiedadAlquilar.id)
+
         for fechaReserva in fechasDeReserva:
-            if fechaReserva.fechaReserva is not None:
-                if DiaInicio <= fechaReserva.fechaReserva <= DiaFin:
+            if fechaReserva.fechaDeReservaInicio is not None and fechaReserva.fechaDeReservaFin is not None:
+                
+                Range = namedtuple('Range', ['start', 'end'])
+                r1 = Range(start=fechaReserva.fechaDeReservaInicio, end=fechaReserva.fechaDeReservaFin)
+                r2 = Range(start=diaInicio, end=diaFin)
+                latest_start = max(r1.start, r2.start)
+                earliest_end = min(r1.end, r2.end)
+                delta = (earliest_end - latest_start).days + 1
+                overlap = max(0, delta)
+                
+                if overlap > 0:
                     return render(request, 'sinDisponibilidad.html')
+
         r = Reserva(
-            fechaDeReserva=datetime.now().date(),
+            fechaDeReservaInicio=diaInicio,
+            fechaDeReservaFin=diaFin,
             propiedad=propiedadAlquilar,
             total=request.POST['total'])
         r.save()
-        for fechaReserva in fechasDeReserva:
-            if DiaInicio <= fechaReserva.fechaReserva <= DiaFin:
-                fechaReserva.fechaReserva = r
-                fechaReserva.save()
-        r.total = propiedadAlquilar.tarifaDiaria * propiedadAlquilar.fechaAlquiler_set.filter(reserva=r).count()
-        r.save()
+    
         return redirect('reservaExitosa', r.numeroReserva)
-    return render(request, 'reservaExitosa.html')
+    return render(request, '404.html')
 
 
 def reservaExitosa(request, idReserva):

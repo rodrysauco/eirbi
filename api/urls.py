@@ -10,3 +10,4 @@ urlpatterns = [
     url(r'^reservaPropiedad/([0-9]+)/$', reservaExitosa, name='reservaExitosa'),
 ]
 
+handler404 = render404

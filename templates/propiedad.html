@@ -1,5 +1,4 @@
 {% load static %}
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -12,9 +11,95 @@
     <link rel="stylesheet" href="{% static 'css/styyle.css' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <title>EirBi&Bi | UTN</title>
+    <script type="text/javascript">
+        const pricePerDay = "{{ property.tarifaDiaria }}"
+    </script>
 </head>
 
 <body>
+    <div class="modal fade" id="reservaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Completar Reserva</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'apiAlq:reservaPropiedad' %}" method="POST">
+                        {{ form.non_field_errors }}
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">Nombre</label>
+                            <input type="text"
+                                name="{{ form.name.name }}"
+                                class="form-control"
+                                placeholder="Ingresar Nombre" 
+                                id="{{ form.name.id_for_label }}"
+                                {% if form.name.value != None %}
+                                    value="{{ form.name.value|stringformat:'s' }}"
+                                {% endif %}
+                                maxlength="{{ form.name.field.max_length }}"
+                                {% if form.name.field.required %}
+                                    required
+                                {% endif %}>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.dateFrom.id_for_label }}">Fecha Inicio</label>
+                            <input type="date"
+                                name="{{ form.dateFrom.name }}"
+                                class="form-control"
+                                placeholder="Ingresar Fecha Inicio" 
+                                id="{{ form.dateFrom.id_for_label }}"
+                                {% if form.dateFrom.value != None %}
+                                    value="{{ form.dateFrom.value|stringformat:'s' }}"
+                                {% endif %}
+                                {% if form.dateFrom.field.required %}
+                                    required
+                                {% endif %}
+                                onchange="eventOnChangeDate()">
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.dateTo.id_for_label }}">Fecha Fin</label>
+                            <input type="date"
+                                name="{{ form.dateTo.name }}"
+                                class="form-control"
+                                placeholder="Ingresar Fecha Fin" 
+                                id="{{ form.dateTo.id_for_label }}"
+                                {% if form.dateTo.value != None %}
+                                    value="{{ form.dateTo.value|stringformat:'s' }}"
+                                {% endif %}
+                                {% if form.dateTo.field.required %}
+                                    required
+                                {% endif %}
+                                onchange="eventOnChangeDate()">
+                        </div>
+                        <div class="form-group d-none">
+                            <input type="number"
+                                name="{{ form.total.name }}"
+                                class="form-control" 
+                                value="{{ property.tarifaDiaria }}"
+                                id="{{ form.total.id_for_label }}">
+                        </div>
+                        <div class="form-group d-none">
+                            <input type="number"
+                                name="{{ form.propertyId.name }}"
+                                class="form-control" 
+                                value="{{ property.id }}"
+                                id="{{ form.propertyId.id_for_label }}">
+                        </div>
+                        <input type="submit" id="sumbit_booking" class="d-none" value="Submit">
+                        <h2> <b> Total: </b>$<span id="text_total">0</span> </h2>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="$('#sumbit_booking').click()">Reservar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Header -->
     <nav class="navbar navbar-light bg-light">
         <span class="logoTitle"> <a href="{% url 'apiAlq:api' %}"> EirBi&Bi</span></a>
@@ -33,13 +118,42 @@
                 <p class="text">
                     <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
                 </p>
-                
-                <p class="card-footer"><a href="" class="btn btn-outline-info btn-sm float-right">Reservar</a></p>
+
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reservaModal">
+                  Reservar
+                </button>
             </div>
             {% endif %}
         </div>
     </div>
 
-</body>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        
+        function eventOnChangeDate() {
+    
+            let date = {
+                start: new Date($("#id_dateFrom").val()),
+                end: new Date($("#id_dateTo").val())
+            }
+            let timeDiff = Math.abs(date.start.getTime() - date.end.getTime());
+            let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
+            if(diffDays > 0)
+                updateTotal(diffDays)
+        }
+
+        function updateTotal(days) {
+            let totalInput = $("#id_total");
+            let total = pricePerDay * days;
+            totalInput.val(total);
+            $("#text_total").text(total);
+        }
+        
+        // Initialize data
+        eventOnChangeDate();
+    </script>
+</body>
 </html>

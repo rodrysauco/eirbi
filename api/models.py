@@ -23,7 +23,6 @@ class Ciudad (models.Model):
     def __str__(self):
         return self.nombre
 
-
 class Propiedad (models.Model):
     title = models.CharField(max_length=25, default=None)
     descripcion = models.TextField(max_length=200)
@@ -38,17 +37,15 @@ class Propiedad (models.Model):
     def __str__(self):
         return self.title
 
-
 class Reserva (models.Model):
-    fechaDeReserva = models.DateField(default = timezone.now)
+    fechaDeReservaInicio = models.DateField(default = timezone.now)
+    fechaDeReservaFin = models.DateField(default = timezone.now)
     numeroReserva = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(Propiedad,on_delete=models.CASCADE, default=None)
     total = models.IntegerField(blank=True, null=True)
 
     def __str__ (self):
         return 'Reserva '+`self.numeroReserva`
-
-
 
 class FechaAlq (models.Model):
     fecha = models.DateField(default =timezone.now)

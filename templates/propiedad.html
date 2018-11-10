@@ -27,7 +27,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url 'apiAlq:reservaPropiedad' %}" method="POST">
+                    <form action="{% url 'apiAlq:reservaPropiedad' %}" onsubmit="sendToServer(this)" method="POST">
                         {{ form.non_field_errors }}
                         {% csrf_token %}
                         <div class="form-group">
@@ -46,34 +46,17 @@
                                 {% endif %}>
                         </div>
                         <div class="form-group">
-                            <label for="{{ form.dateFrom.id_for_label }}">Fecha Inicio</label>
-                            <input type="date"
-                                name="{{ form.dateFrom.name }}"
-                                class="form-control"
-                                placeholder="Ingresar Fecha Inicio" 
-                                id="{{ form.dateFrom.id_for_label }}"
-                                {% if form.dateFrom.value != None %}
-                                    value="{{ form.dateFrom.value|stringformat:'s' }}"
-                                {% endif %}
-                                {% if form.dateFrom.field.required %}
-                                    required
-                                {% endif %}
-                                onchange="eventOnChangeDate()">
-                        </div>
-                        <div class="form-group">
-                            <label for="{{ form.dateTo.id_for_label }}">Fecha Fin</label>
-                            <input type="date"
-                                name="{{ form.dateTo.name }}"
-                                class="form-control"
-                                placeholder="Ingresar Fecha Fin" 
-                                id="{{ form.dateTo.id_for_label }}"
-                                {% if form.dateTo.value != None %}
-                                    value="{{ form.dateTo.value|stringformat:'s' }}"
-                                {% endif %}
-                                {% if form.dateTo.field.required %}
-                                    required
-                                {% endif %}
-                                onchange="eventOnChangeDate()">
+                            {% if fechasDisp %}
+                                <select name="dates" id="dates" class="form-control" multiple="multiple" required>
+                                    {% for fecha in fechasDisp %}
+                                        <option value="{{ fecha.fecha }}">{{fecha.fecha}}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                    <p>
+                                        Sin fechas disponibles
+                                    </p>                                    
+                            {% endif %} 
                         </div>
                         <div class="form-group d-none">
                             <input type="number"
@@ -118,10 +101,21 @@
                 <p class="text">
                     <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
                 </p>
-
-                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reservaModal">
-                  Reservar
-                </button>
+                <h4 class="card-title"> Fechas Disponibles </h4>
+                {% if fechasDisp %}
+                    {% for fecha in fechasDisp %}
+                    <p> - {{ fecha.fecha }}</p>
+                    {% endfor %}
+                {% endif %}
+                {% if fechasDisp %}
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#reservaModal">
+                        Reservar
+                    </button>
+                {% else %}
+                    <button class="btn btn-secondary">
+                        Fechas no disponibles
+                    </button>
+                {% endif %}
             </div>
             {% endif %}
         </div>
@@ -134,15 +128,15 @@
         
         function eventOnChangeDate() {
     
-            let date = {
-                start: new Date($("#id_dateFrom").val()),
-                end: new Date($("#id_dateTo").val())
-            }
-            let timeDiff = Math.abs(date.start.getTime() - date.end.getTime());
-            let diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            let checkedNodes = document.querySelectorAll('#groups_checks input');
+            let counter = 0;
 
-            if(diffDays > 0)
-                updateTotal(diffDays)
+            for(let i = 0; i < checkedNodes.length; i++){
+                if(checkedNodes[i].checked)
+                    counter++
+            }
+
+            updateTotal(counter)
         }
 
         function updateTotal(days) {
@@ -152,6 +146,19 @@
             $("#text_total").text(total);
         }
         
+        function sendToServer(formData) {
+            
+            let checkedNodes = document.querySelectorAll('#groups_checks input');
+            let arrCheckedDates = [];
+
+            for(let i = 0; i < checkedNodes.length; i++){
+                if(checkedNodes[i].checked)
+                    arrCheckedDates.push(checkedNodes[i].value)
+            }
+
+            formData.append("checkNotes", arrCheckedDates)
+        }
+
         // Initialize data
         eventOnChangeDate();
     </script>

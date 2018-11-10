@@ -34,49 +34,37 @@ def index(request):
 def propiedad(request, propiedadid):
     try:
         prop = Propiedad.objects.get(id=propiedadid)
+        fechasDisp = FechaAlq.objects.filter(propiedad=prop,reserva = None)
+
     except Propiedad.DoesNotExist:
         raise Http404("La propiedad ingresada no existe")
-    return render(request, 'propiedad.html', {'property': prop, 'form': ReservaForm()})
+    return render(request, 'propiedad.html', {'property': prop, 'form': ReservaForm(), 'fechasDisp': fechasDisp})
 
 
 def reservaPropiedad(request):
     if request.method == 'POST':
-        diaInicio = datetime.strptime(
-            request.POST['dateFrom'], '%Y-%m-%d').date()
-        diaFin = datetime.strptime(request.POST['dateTo'], '%Y-%m-%d').date()
+        dates = dict(request.POST)['dates']
+
         propiedadAlquilar = Propiedad.objects.get(
             id=request.POST['propertyId'])
-        fechasDeReserva = Reserva.objects.filter(
-            propiedad=propiedadAlquilar.id)
-
-        for fechaReserva in fechasDeReserva:
-            if fechaReserva.fechaDeReservaInicio is not None and fechaReserva.fechaDeReservaFin is not None:
-                
-                Range = namedtuple('Range', ['start', 'end'])
-                r1 = Range(start=fechaReserva.fechaDeReservaInicio, end=fechaReserva.fechaDeReservaFin)
-                r2 = Range(start=diaInicio, end=diaFin)
-                latest_start = max(r1.start, r2.start)
-                earliest_end = min(r1.end, r2.end)
-                delta = (earliest_end - latest_start).days + 1
-                overlap = max(0, delta)
-                
-                if overlap > 0:
-                    return render(request, 'sinDisponibilidad.html')
 
         r = Reserva(
-            fechaDeReservaInicio=diaInicio,
-            fechaDeReservaFin=diaFin,
             propiedad=propiedadAlquilar,
             total=request.POST['total'])
         r.save()
+
+        for date in dates:
+            f = FechaAlq.objects.get(fecha=date, propiedad=propiedadAlquilar)
+            f.reserva = r
+            f.save(force_update=True)
     
-        return redirect('reservaExitosa', r.numeroReserva)
+        return redirect('apiAlq:reservaExitosa', r.numeroReserva)
     return render(request, '404.html')
 
 
 def reservaExitosa(request, idReserva):
     try:
-        reserva = Reserva.objects.get(id=idReserva)
+        reserva = Reserva.objects.get(numeroReserva=idReserva)
     except Propiedad.DoesNotExist:
         raise Http404("Propiedad no encontrada")
     return render(request, 'reservaExitosa.html', {'reserva': reserva})

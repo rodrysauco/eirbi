@@ -38,8 +38,7 @@ class Propiedad (models.Model):
         return self.title
 
 class Reserva (models.Model):
-    fechaDeReservaInicio = models.DateField(default = timezone.now)
-    fechaDeReservaFin = models.DateField(default = timezone.now)
+    fechaRealizada = models.DateField(default =timezone.now)
     numeroReserva = models.AutoField(primary_key=True)
     propiedad = models.ForeignKey(Propiedad,on_delete=models.CASCADE, default=None)
     total = models.IntegerField(blank=True, null=True)
@@ -48,7 +47,7 @@ class Reserva (models.Model):
         return 'Reserva '+`self.numeroReserva`
 
 class FechaAlq (models.Model):
-    fecha = models.DateField(default =timezone.now)
+    fecha = models.DateField(input_formats=settings.DATE_INPUT_FORMATS)
     propiedad = models.ForeignKey(Propiedad, null=True, blank=True, on_delete=models.CASCADE, default= None)
     reserva = models.ForeignKey(Reserva, on_delete=models.PROTECT, blank=True, null=True, default = None)
 

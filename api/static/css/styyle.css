@@ -24,13 +24,18 @@
 }
 
 .card-body {
-    height: 370px;
+    height: 400px;
 }
 
 .img{
     height: 500px;
     width: 500px;
     position: absolute;
+}
+
+
+.form-inline input{
+    margin-right: 5px;
 }
 
 a:hover, a:visited, a:link, a:active

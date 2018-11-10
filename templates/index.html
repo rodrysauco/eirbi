@@ -19,6 +19,10 @@
         <span class="logoTitle"> <a href="{% url 'apiAlq:api' %}"> EirBi&Bi</span></a>
         <form method="GET" class="form-inline">
             <input type="hidden" name="filter" id="filter" value='false'>
+            <!-- <label for="desde">Desde: </label>
+            <input type="date" name="desde" id="desde" min='{{actual|date:"Y-m-d"}}' value='{{actual|date:"Y-m-d"}}'>
+            <label for="hasta">Hasta: </label>
+            <input type="date" name="hasta" id="hasta" placeholder="Hasta"> -->
             <select name="cities" id="cities" class="form-control mr-sm-2" onclick="setFilter()">
                 <option value="" selected disabled>Seleccione</option>
                 {% for city in ciudades %}
@@ -39,17 +43,22 @@
                         <img src="{{property.imagen.url}}" alt="Imagen propiedad" class="card-img top">
                         <h5 class="card-title">{{property.title}}</h5>
                         <p class="card-text">{{property.descripcion}}</p>
-                        <p class="card-text">
-                            <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
-                        </p>
                     </div>
                     <div class="card-footer">
+                        <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
                         <a href="{% url 'apiAlq:propiedad' property.id %}" class="btn btn-outline-info btn-sm float-right">Ver
                             mas</a>
                     </div>
                 </div>
             </div>
             {% endfor %}
+            {% else %}
+                <div class="jumbotron">
+                    <div class="content">
+                        <h1 class="display-4">Ups, ha ocurrido un problema </h1>
+                        <p class="lead">Al parecer todavia no disponemos de propiedad en la ciudad que busca</p>
+                    </div>
+                </div>
             {% endif %}
         </div>
     </div>

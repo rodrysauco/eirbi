@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.http import Http404
 from api.models import *
-from datetime import datetime
+from django.utils import timezone
 from django.utils import formats
 from collections import namedtuple
 from api.forms import ReservaForm
@@ -14,20 +14,35 @@ def render404(request):
 
 # Create your views here.
 def index(request):
-    filtro = request.GET.get('filter')
+    fecha = timezone.now().date()
     ciudades = Ciudad.objects.all()
+
+    ciudad = request.GET.get('cities')
+    filtro = request.GET.get('filter')
+    desde = request.GET.get('desde')
+    hasta = request.GET.get('hasta')
+    
+    """ if ciudad :
+        if desde and hasta:
+            pruueba = FechaAlq.objects.filter(propiedad.ciudad.nombre=ciudad, (fecha__range(desde,hasta)))
+            print(pruueba)
+     """
+
+
     if filtro == 'true':
         filtrados = Propiedad.objects.all().filter(ciudad=request.GET['cities'])
         contexto = {
             'propiedades': filtrados,
-            'ciudades': ciudades
+            'ciudades': ciudades,
+            'actual':fecha
         }
         return render(request, 'index.html', contexto)
     else:
         propiedades = Propiedad.objects.all()
         contexto = {
             'propiedades': propiedades,
-            'ciudades': ciudades
+            'ciudades': ciudades,
+            'actual':fecha
         }
         return render(request, 'index.html', contexto)
 
@@ -46,8 +61,6 @@ def reservaPropiedad(request):
     if request.method == 'POST':
         dates = dict(request.POST)['dates']
 
-        print(dates)
-
         propiedadAlquilar = Propiedad.objects.get(
             id=request.POST['propertyId'])
 
@@ -57,7 +70,6 @@ def reservaPropiedad(request):
         r.save()
 
         for date in dates:
-            """ fecha = formats.date_format(date, "SHORT_DATETIME_FORMAT") """
             f = FechaAlq.objects.get(fecha=date, propiedad=propiedadAlquilar)
             f.reserva = r
             f.save(force_update=True)

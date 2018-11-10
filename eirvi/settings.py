@@ -128,5 +128,4 @@ MEDIA_ROOT = 'eirvi/media/'
 
 MEDIA_URL = '/media/'
 
-DATE_INPUT_FORMATS = ['%d-%m-%Y']
 

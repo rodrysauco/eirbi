@@ -47,7 +47,7 @@ class Reserva (models.Model):
         return 'Reserva '+`self.numeroReserva`
 
 class FechaAlq (models.Model):
-    fecha = models.DateField(input_formats=settings.DATE_INPUT_FORMATS)
+    fecha = models.DateField(null=False)
     propiedad = models.ForeignKey(Propiedad, null=True, blank=True, on_delete=models.CASCADE, default= None)
     reserva = models.ForeignKey(Reserva, on_delete=models.PROTECT, blank=True, null=True, default = None)
 

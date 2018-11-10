@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.http import Http404
 from api.models import *
 from datetime import datetime
+from django.utils import formats
 from collections import namedtuple
 from api.forms import ReservaForm
 
@@ -45,6 +46,8 @@ def reservaPropiedad(request):
     if request.method == 'POST':
         dates = dict(request.POST)['dates']
 
+        print(dates)
+
         propiedadAlquilar = Propiedad.objects.get(
             id=request.POST['propertyId'])
 
@@ -54,6 +57,7 @@ def reservaPropiedad(request):
         r.save()
 
         for date in dates:
+            """ fecha = formats.date_format(date, "SHORT_DATETIME_FORMAT") """
             f = FechaAlq.objects.get(fecha=date, propiedad=propiedadAlquilar)
             f.reserva = r
             f.save(force_update=True)

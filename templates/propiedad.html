@@ -47,12 +47,13 @@
                         </div>
                         <div class="form-group">
                             {% if fechasDisp %}
-                                <select name="dates" id="dates" class="form-control" multiple="multiple" required>
+                                <select name="dates" id="dates" class="form-control" multiple="multiple" required onchange="eventOnChangeDate()">
                                     {% for fecha in fechasDisp %}
                                         <option value='{{ fecha.fecha|date:"Y-m-d" }}'>{{fecha.fecha|date:"d/m/y"}}</option>
                                     {% endfor %}
                                 </select>                                   
                             {% endif %} 
+                            <span> Mantenga presionado shift para seleccionar varias fechas </span>
                         </div>
                         <div class="form-group d-none">
                             <input type="number"
@@ -124,12 +125,12 @@
     <script type="text/javascript">
         
         function eventOnChangeDate() {
-    
-            let checkedNodes = document.querySelectorAll('#groups_checks input');
+
+            let options = document.getElementById('dates').options;
             let counter = 0;
 
-            for(let i = 0; i < checkedNodes.length; i++){
-                if(checkedNodes[i].checked)
+            for(let i = 0; i < options.length; i++){
+                if(options[i].selected)
                     counter++
             }
 
@@ -145,12 +146,12 @@
         
         function sendToServer(formData) {
             
-            let checkedNodes = document.querySelectorAll('#groups_checks input');
+            let options = document.getElementById('dates').options;
             let arrCheckedDates = [];
 
-            for(let i = 0; i < checkedNodes.length; i++){
-                if(checkedNodes[i].checked)
-                    arrCheckedDates.push(checkedNodes[i].value)
+            for(let i = 0; i < options.length; i++){
+                if(options[i].selected)
+                    arrCheckedDates.push(options[i].value)
             }
 
             formData.append("checkNotes", arrCheckedDates)

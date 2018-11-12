@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/styyle.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>EirBi&Bi | UTN</title>
+</head>
+
+<body>
+    <!-- Header -->
+    <nav class="navbar navbar-light bg-light">
+        <span class="logoTitle"> <a href="{% url 'apiAlq:api' %}"> EirBi&Bi</span></a>
+        <form method="GET" class="form-inline">
+            <input type="hidden" name="filter" id="filter" value='false'>
+            <!-- <label for="desde">Desde: </label>
+            <input type="date" name="desde" id="desde" min='{{actual|date:"Y-m-d"}}' value='{{actual|date:"Y-m-d"}}'>
+            <label for="hasta">Hasta: </label>
+            <input type="date" name="hasta" id="hasta" placeholder="Hasta"> -->
+            <select name="cities" id="cities" class="form-control mr-sm-2" onclick="setFilter()">
+                <option value="" selected disabled>Seleccione</option>
+                {% for city in ciudades %}
+                <option value="{{city.id}}">{{city.nombre}}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-outline-info searchBtn"><i class="material-icons searchLogo">search</i></button>
+        </form>
+    </nav>
+    <!-- Body -->
+    <div class="container">
+        <div class="row">
+            {% if propiedades %}
+            {% for property in propiedades %}
+            <div class="col-lg-3 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <img src="{{property.imagen.url}}" alt="Imagen propiedad" class="card-img top">
+                        <h5 class="card-title">{{property.title}}</h5>
+                        <p class="card-text">{{property.descripcion}}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
+                        <a href="{% url 'apiAlq:propiedad' property.id %}" class="btn btn-outline-info btn-sm float-right">Ver
+                            mas</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+                <div class="jumbotron">
+                    <div class="content">
+                        <h1 class="display-4">Ups, ha ocurrido un problema </h1>
+                        <p class="lead">Al parecer todavia no disponemos de propiedad en la ciudad que busca</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+        function setFilter() {
+            let cities = document.getElementById("cities");
+            if (cities.value > 0) {
+                let filter = document.getElementById("filter");
+                filter.value = true;
+                document.getElementById("filter") = filter;
+            }
+
+        }
+    </script>
+</body>
+
+</html>

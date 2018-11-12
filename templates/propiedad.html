@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'css/styyle.css' %}">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>EirBi&Bi | UTN</title>
+    <script type="text/javascript">
+        const pricePerDay = "{{ property.tarifaDiaria }}"
+    </script>
+</head>
+
+<body>
+    <div class="modal fade" id="reservaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Completar Reserva</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{% url 'apiAlq:reservaPropiedad' %}" onsubmit="sendToServer(this)" method="POST">
+                        {{ form.non_field_errors }}
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.name.id_for_label }}">Nombre</label>
+                            <input type="text"
+                                name="{{ form.name.name }}"
+                                class="form-control"
+                                placeholder="Ingresar Nombre" 
+                                id="{{ form.name.id_for_label }}"
+                                {% if form.name.value != None %}
+                                    value="{{ form.name.value|stringformat:'s' }}"
+                                {% endif %}
+                                maxlength="{{ form.name.field.max_length }}"
+                                {% if form.name.field.required %}
+                                    required
+                                {% endif %}>
+                        </div>
+                        <div class="form-group">
+                            {% if fechasDisp %}
+                                <select name="dates" id="dates" class="form-control" multiple="multiple" required onchange="eventOnChangeDate()">
+                                    {% for fecha in fechasDisp %}
+                                        <option value='{{ fecha.fecha|date:"Y-m-d" }}'>{{fecha.fecha|date:"d/m/y"}}</option>
+                                    {% endfor %}
+                                </select>                                   
+                            {% endif %} 
+                            <span> Mantenga presionado shift para seleccionar varias fechas </span>
+                        </div>
+                        <div class="form-group d-none">
+                            <input type="number"
+                                name="{{ form.total.name }}"
+                                class="form-control" 
+                                value="{{ property.tarifaDiaria }}"
+                                id="{{ form.total.id_for_label }}">
+                        </div>
+                        <div class="form-group d-none">
+                            <input type="number"
+                                name="{{ form.propertyId.name }}"
+                                class="form-control" 
+                                value="{{ property.id }}"
+                                id="{{ form.propertyId.id_for_label }}">
+                        </div>
+                        <input type="submit" id="sumbit_booking" class="d-none" value="Submit">
+                        <h2> <b> Total: </b>$<span id="text_total">0</span> </h2>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="$('#sumbit_booking').click()">Reservar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Header -->
+    <nav class="navbar navbar-light bg-light">
+        <span class="logoTitle"> <a href="{% url 'apiAlq:api' %}"> EirBi&Bi</span></a>
+    </nav>
+    <!-- Body -->
+    <div class="container">
+        <div class="row">
+            {% if property %}
+            <div class="col-lg-6 col-md-6">
+                <img src="{{property.imagen.url}}" alt="Imagen propiedad" class="card-img top" height="500px">
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <h5 class="card-title">{{property.title}}</h5>
+                <p class="text">{{property.descripcion}}</p>
+                <p class="text">Propietario: {{property.propietario}}</p>
+                <p class="text">
+                    <small class="text-muted">{{property.ciudad}} - ${{property.tarifaDiaria}}</small>
+                </p>
+                <h4 class="card-title"> Fechas Disponibles </h4>
+                {% if fechasDisp %}
+                    {% for fecha in fechasDisp %}
+                    <p> - {{ fecha.fecha|date:"SHORT_DATE_FORMAT"  }}</p>
+                    {% endfor %}
+                {% endif %}
+                <a role="button" href="{% url 'apiAlq:api' %}" class="btn btn-primary" >Volver</a>
+                {% if fechasDisp %}
+                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#reservaModal">
+                        Reservar
+                    </button>
+                {% else %}
+                    <button class="btn btn-secondary">
+                        Fechas no disponibles
+                    </button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        
+        function eventOnChangeDate() {
+
+            let options = document.getElementById('dates').options;
+            let counter = 0;
+
+            for(let i = 0; i < options.length; i++){
+                if(options[i].selected)
+                    counter++
+            }
+
+            updateTotal(counter)
+        }
+
+        function updateTotal(days) {
+            let totalInput = $("#id_total");
+            let total = pricePerDay * days;
+            totalInput.val(total);
+            $("#text_total").text(total);
+        }
+        
+        function sendToServer(formData) {
+            
+            let options = document.getElementById('dates').options;
+            let arrCheckedDates = [];
+
+            for(let i = 0; i < options.length; i++){
+                if(options[i].selected)
+                    arrCheckedDates.push(options[i].value)
+            }
+
+            formData.append("checkNotes", arrCheckedDates)
+        }
+
+        // Initialize data
+        eventOnChangeDate();
+    </script>
+</body>
+</html>
